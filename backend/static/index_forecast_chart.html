@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌤️ 七日天氣預報</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      text-align: center;
+    }
+
+    #chart-container {
+      margin-top: 2rem;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    button {
+      padding: 0.7rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      background-color: #007aff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>📆 七日天氣預報</h1>
+  <button onclick="loadForecast()">取得預報（使用定位）</button>
+  <div id="chart-container">
+    <canvas id="forecastChart"></canvas>
+  </div>
+
+  <script>
+    async function loadForecast() {
+      if (!navigator.geolocation) {
+        alert("此瀏覽器不支援定位功能。");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        const res = await fetch(`/weather/forecast?lat=${lat}&lon=${lon}`);
+        const data = await res.json();
+
+        if (data.錯誤) {
+          alert("⚠️ 錯誤：" + data.錯誤);
+          return;
+        }
+
+        const labels = data.forecast.map(day => day.date);
+        const temps = data.forecast.map(day => day.temp);
+        const feels = data.forecast.map(day => day.feels_like);
+
+        const ctx = document.getElementById('forecastChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: '白天氣溫 (°C)',
+                data: temps,
+                borderColor: '#ff9800',
+                backgroundColor: 'rgba(255,152,0,0.2)',
+                tension: 0.3
+              },
+              {
+                label: '體感氣溫 (°C)',
+                data: feels,
+                borderColor: '#03a9f4',
+                backgroundColor: 'rgba(3,169,244,0.2)',
+                tension: 0.3
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: { beginAtZero: false }
+            }
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

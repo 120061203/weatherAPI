@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌤️ 天氣查詢系統（動態背景）</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      text-align: center;
+      color: white;
+      background-size: cover;
+      background-position: center;
+      transition: background-image 0.5s ease-in-out;
+    }
+
+    button {
+      padding: 0.7rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      border: none;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-radius: 12px;
+      background-color: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 1rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>📍 天氣查詢（含背景變化）</h1>
+  <button onclick="getLocationWeather()">使用我的位置查天氣</button>
+  <div id="result"></div>
+
+  <script>
+    const bgMap = {
+      "晴": "url('https://images.unsplash.com/photo-1502082553048-f009c37129b9')",
+      "多雲": "url('https://images.unsplash.com/photo-1501630834273-4b5604d2ee31')",
+      "陰": "url('https://images.unsplash.com/photo-1519681393784-d120267933ba')",
+      "雨": "url('https://images.unsplash.com/photo-1606741965423-0d2f84f3f529')",
+      "雷": "url('https://images.unsplash.com/photo-1500674425229-f692875b0ab7')",
+      "雪": "url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb')"
+    };
+
+    function setBackground(weather) {
+      const w = weather.toLowerCase();
+      for (const key in bgMap) {
+        if (w.includes(key)) {
+          document.body.style.backgroundImage = bgMap[key];
+          return;
+        }
+      }
+      // default
+      document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1523480717984-24cba35b57f5')";
+    }
+
+    async function getLocationWeather() {
+      const resultEl = document.getElementById("result");
+      resultEl.innerHTML = "📡 正在取得位置...";
+
+      if (!navigator.geolocation) {
+        resultEl.innerHTML = "❌ 你的瀏覽器不支援地理定位功能。";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        resultEl.innerHTML = `📍 位置：(${lat.toFixed(4)}, ${lon.toFixed(4)})<br>⏳ 查詢天氣中...`;
+
+        try {
+          const res = await fetch(`/weather/geo?lat=${lat}&lon=${lon}`);
+          const data = await res.json();
+
+          if (data.錯誤) {
+            resultEl.innerHTML = `❌ 錯誤：${data.錯誤}`;
+          } else {
+            setBackground(data.天氣);
+            resultEl.innerHTML = `
+              <h3>📍 ${data.城市}</h3>
+              <p><strong>天氣：</strong> ${data.天氣}</p>
+              <p><strong>氣溫：</strong> ${data.氣溫}°C</p>
+              <p><strong>體感溫度：</strong> ${data.體感溫度}°C</p>
+              <p><strong>濕度：</strong> ${data.濕度}%</p>
+            `;
+          }
+        } catch (error) {
+          resultEl.innerHTML = "❌ 無法取得天氣資料。";
+        }
+      }, (error) => {
+        resultEl.innerHTML = "❌ 定位失敗，請允許瀏覽器取得位置。";
+      });
+    }
+  </script>
+</body>
+</html>

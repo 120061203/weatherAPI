@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>🌤️ 天氣看板選單首頁</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(to bottom, #d0eafc, #ffffff);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    a {
+      display: block;
+      padding: 1rem;
+      background: #007aff;
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      transition: background 0.3s;
+    }
+
+    a:hover {
+      background: #005fc1;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌤️ Weather Dashboard 選單</h1>
+  <div class="menu">
+    <a href="/static/index_dashboard.html">🌈 卡片式即時天氣</a>
+    <!-- <a href="/static/index_geo_location.html">📍 自動定位查天氣</a> -->
+    <!-- <a href="/static/index_with_background.html">🌄 背景切換版</a> -->
+    <!-- <a href="/static/index_forecast_chart.html">📆 七日預報 Chart</a> -->
+    <a href="/static/index_map_air.html">🌍 地圖 + AQI + 天氣整合</a>
+  </div>
+</body>
+</html>

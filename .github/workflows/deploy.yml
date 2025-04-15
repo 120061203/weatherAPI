@@ -1,0 +1,20 @@
+name: 🚀 Deploy to Zeabur
+
+on:
+  push:
+    branches:
+      - main  # 或你自己的部署分支
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout source code
+        uses: actions/checkout@v3
+
+      - name: 🚀 Deploy to Zeabur
+        uses: zeabur/action@v1
+        with:
+          service-id: ${{ secrets.ZEABUR_SERVICE_ID }}
+          token: ${{ secrets.ZEABUR_TOKEN }}

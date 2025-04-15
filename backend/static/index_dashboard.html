@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌤️ 天氣查詢系統</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(to bottom, #dfefff, #ffffff);
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      text-align: center;
+    }
+
+    select, button {
+      padding: 0.7rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      border: 1px solid #aaa;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+
+    #result {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-radius: 12px;
+      background-color: #f0f8ff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    #time {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    @media (max-width: 480px) {
+      select, button {
+        width: 100%;
+        margin: 0.5rem 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🌤️ 天氣查詢系統</h1>
+  <label for="city">請選擇城市：</label><br/>
+  <select id="city">
+    <option value="台北">台北</option>
+    <option value="台中">台中</option>
+    <option value="桃園">桃園</option>
+    <option value="高雄">高雄</option>
+    <option value="台南">台南</option>
+    <option value="東京">東京</option>
+    <option value="紐約">紐約</option>
+  </select>
+  <button onclick="getWeather()">查詢天氣</button>
+
+  <div id="result"></div>
+
+  <script>
+    function getLocalTime() {
+      const now = new Date();
+      return now.toLocaleString("zh-TW");
+    }
+
+    async function getWeather() {
+      const city = document.getElementById("city").value;
+      const resultEl = document.getElementById("result");
+
+      resultEl.innerHTML = "⏳ 查詢中...";
+
+      try {
+        const res = await fetch(`/weather?city=${encodeURIComponent(city)}`);
+        const data = await res.json();
+
+        if (data.錯誤) {
+          resultEl.innerHTML = `<strong style="color:red">❌ 錯誤：</strong> ${data.錯誤}`;
+        } else {
+          const weather = data.天氣.toLowerCase();
+          let icon = "🌡️";
+          if (weather.includes("晴")) icon = "☀️";
+          else if (weather.includes("雲")) icon = "⛅";
+          else if (weather.includes("雨")) icon = "🌧️";
+          else if (weather.includes("雷")) icon = "⛈️";
+          else if (weather.includes("雪")) icon = "❄️";
+
+          resultEl.innerHTML = `
+            <div id="time">查詢時間：${getLocalTime()}</div>
+            <h3>${icon} ${data.城市}</h3>
+            <p><strong>天氣：</strong> ${data.天氣}</p>
+            <p><strong>氣溫：</strong> ${data.氣溫}°C</p>
+            <p><strong>體感溫度：</strong> ${data.體感溫度}°C</p>
+            <p><strong>濕度：</strong> ${data.濕度}%</p>
+          `;
+        }
+      } catch (error) {
+        resultEl.textContent = "❌ 查詢失敗，請確認伺服器已啟動";
+      }
+    }
+  </script>
+</body>
+</html>
